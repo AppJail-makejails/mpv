@@ -1,0 +1,24 @@
+build:
+  variants:
+    - tag: 15.1
+      containerfile: Containerfile
+      aliases: ["latest"]
+      default: true
+      args:
+        FREEBSD_RELEASE: "15.1"
+        NO_PKGCLEAN: "1"
+      cache_dirs: ["pkgcache0:/var/cache/pkg"]
+    - tag: 15.1-intel
+      containerfile: Containerfile
+      args:
+        FREEBSD_RELEASE: "15.1"
+        NO_PKGCLEAN: "1"
+        DRIVER: "intel"
+      cache_dirs: ["pkgcache0:/var/cache/pkg"]
+    - tag: 15.1-nvidia
+      containerfile: Containerfile
+      args:
+        FREEBSD_RELEASE: "15.1"
+        NO_PKGCLEAN: "1"
+        DRIVER: "nvidia"
+      cache_dirs: ["pkgcache0:/var/cache/pkg"]
