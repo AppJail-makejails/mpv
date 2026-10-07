@@ -5,7 +5,7 @@ It supports a wide variety of video file formats, audio and video codecs, and su
 
 wikipedia.org/wiki/Mpv_(media_player)
 
-<img src="https://raw.githubusercontent.com/AppJail-makejails/mpv/refs/heads/main/mpv/mpv.png" width="30%" height="auto" alt="mpv logo">
+<img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Mpv_logo_%28official%29.png/500px-Mpv_logo_%28official%29.png" width="30%" height="auto" alt="mpv logo">
 
 ## How to use this AppJail
 
