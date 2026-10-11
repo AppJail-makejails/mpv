@@ -1,9 +1,5 @@
 #!/bin/sh
 
-APPNAME="mpv"
+__install_appname="mpv"
 
-set -e -o pipefail
-
-PREFIX=`x11appjail prefix`
-
-exec "${PREFIX}/libexec/x11appjail/misc/simple-desktop-file-utils.sh" "${APPNAME}" "I"
+. "${X11APPJAIL_WORKDIR}/appjail.d/install.subr"
