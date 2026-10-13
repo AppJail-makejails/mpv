@@ -52,9 +52,9 @@ if [ $# -gt 0 ]; then
     fi
 fi
 
-. "${X11APPJAIL_WORKDIR}/perms.sh"
+. "${X11APPJAIL_WORKDIR}/appjail.d/perms.subr"
 
-if ${ENABLE_3D_ALREADY}; then
+if ${__perms_allow_3d}; then
     VGL_DISPLAY="egl"
     ATTR="${X11APPJAIL_APPNAME}:${X11APPJAIL_PROFILE}.virtualgl.display"
 
