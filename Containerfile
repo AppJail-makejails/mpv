@@ -17,7 +17,7 @@ RUN set -xe; \
     sysrc clear_tmp_X=NO; \
     \
     pkg update; \
-    packages="mpv bash"; \
+    packages="mpv mpv-mpris bash"; \
     if [ -n "${DRIVER}" ] && [ "${DRIVER}" = "intel" ]; then \
         packages="${packages} libva-intel-media-driver libva-intel-driver libva-intel-hybrid-driver"; \
     elif [ -n "${DRIVER}" ] && [ "${DRIVER}" = "nvidia" ]; then \

@@ -2,16 +2,8 @@
 
 set -o pipefail
 
-run_as()
-{
-    HOME="${X11APPJAIL_HOMEDIR}" \
-        mdo -u "${X11APPJAIL_UID}" -g "${X11APPJAIL_GID}" -G "${X11APPJAIL_OGID}" -- "$@"
-}
-
-err()
-{
-    printf "###> %s\n" "$*" >&2
-}
+. "${X11APPJAIL_WORKDIR}/appjail.d/lib.subr"
+. "${X11APPJAIL_WORKDIR}/appjail.d/dbus.subr"
 
 JEXEC="${X11APPJAIL_BASEDIR}/usr/local/libexec/appjail/jexec/jexec"
 
@@ -68,10 +60,22 @@ else
     set -- mpv "$@"
 fi
 
+if [ "${__dbus_system_mode}" != "none" ]; then
+    start_dbus "dbus-system" "${__dbus_system_mode}" "${__dbus_system_pidfile}" "${X11APPJAIL_DBUS_SYSTEM_BUS_ADDRESS}" \
+        "${__dbus_system_sock}"
+fi
+
+if [ "${__dbus_session_mode}" != "none" ]; then
+    start_dbus "dbus-user" "${__dbus_session_mode}" "${__dbus_session_pidfile}" "${X11APPJAIL_DBUS_SESSION_BUS_ADDRESS}" \
+        "${__dbus_session_sock}"
+fi
+
 if [ -n "${FILE}" ] && ${IS_LOCAL}; then
     run_as cat -- "${FILE}" | "${JEXEC}" -l \
         -U noroot \
         -e DISPLAY="${X11APPJAIL_DISPLAY}" \
+        -e DBUS_SYSTEM_BUS_ADDRESS="unix:path=/var/run/dbus/system_bus_socket" \
+        -e DBUS_SESSION_BUS_ADDRESS="unix:path=/var/run/dbus-session/session_bus_socket" \
         "${X11APPJAIL_JAIL}" \
         "$@"
     exit $?
@@ -79,6 +83,8 @@ else
     exec "${JEXEC}" -l \
         -U noroot \
         -e DISPLAY="${X11APPJAIL_DISPLAY}" \
+        -e DBUS_SYSTEM_BUS_ADDRESS="unix:path=/var/run/dbus/system_bus_socket" \
+        -e DBUS_SESSION_BUS_ADDRESS="unix:path=/var/run/dbus-session/session_bus_socket" \
         "${X11APPJAIL_JAIL}" \
         "$@"
 fi
