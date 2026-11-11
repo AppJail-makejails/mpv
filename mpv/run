@@ -2,10 +2,11 @@
 
 set -o pipefail
 
+__run_program=mpv
+__dbus_stop=true
+
 . "${X11APPJAIL_WORKDIR}/appjail.d/lib.subr"
 . "${X11APPJAIL_WORKDIR}/appjail.d/dbus.subr"
-
-JEXEC="${X11APPJAIL_BASEDIR}/usr/local/libexec/appjail/jexec/jexec"
 
 FILE=
 IS_LOCAL=true
@@ -47,44 +48,11 @@ fi
 . "${X11APPJAIL_WORKDIR}/appjail.d/perms.subr"
 
 if ${__perms_allow_3d}; then
-    VGL_DISPLAY="egl"
-    ATTR="${X11APPJAIL_APPNAME}:${X11APPJAIL_PROFILE}.virtualgl.display"
-
-    if x11appjail sys-attr check "${ATTR}" "${X11APPJAIL_UID}"; then
-        VGL_DISPLAY=`x11appjail sys-attr cat "${ATTR}" "${X11APPJAIL_UID}"`
-    fi
-
-    set -- /usr/local/VirtualGL/bin/vglrun -d "${VGL_DISPLAY}" \
-        mpv --vo=gpu --gpu-api=opengl --hwdec=auto --hwdec-codecs=all "$@"
-else
-    set -- mpv "$@"
-fi
-
-if [ "${__dbus_system_mode}" != "none" ]; then
-    start_dbus "dbus-system" "${__dbus_system_mode}" "${__dbus_system_pidfile}" "${X11APPJAIL_DBUS_SYSTEM_BUS_ADDRESS}" \
-        "${__dbus_system_sock}"
-fi
-
-if [ "${__dbus_session_mode}" != "none" ]; then
-    start_dbus "dbus-user" "${__dbus_session_mode}" "${__dbus_session_pidfile}" "${X11APPJAIL_DBUS_SESSION_BUS_ADDRESS}" \
-        "${__dbus_session_sock}"
+    set -- --vo=gpu --gpu-api=opengl --hwdec=auto --hwdec-codecs=all "$@"
 fi
 
 if [ -n "${FILE}" ] && ${IS_LOCAL}; then
-    run_as cat -- "${FILE}" | "${JEXEC}" -l \
-        -U noroot \
-        -e DISPLAY="${X11APPJAIL_DISPLAY}" \
-        -e DBUS_SYSTEM_BUS_ADDRESS="unix:path=/var/run/dbus/system_bus_socket" \
-        -e DBUS_SESSION_BUS_ADDRESS="unix:path=/var/run/dbus-session/session_bus_socket" \
-        "${X11APPJAIL_JAIL}" \
-        "$@"
-    exit $?
-else
-    exec "${JEXEC}" -l \
-        -U noroot \
-        -e DISPLAY="${X11APPJAIL_DISPLAY}" \
-        -e DBUS_SYSTEM_BUS_ADDRESS="unix:path=/var/run/dbus/system_bus_socket" \
-        -e DBUS_SESSION_BUS_ADDRESS="unix:path=/var/run/dbus-session/session_bus_socket" \
-        "${X11APPJAIL_JAIL}" \
-        "$@"
+    __run_stdin="${FILE}"
 fi
+
+. "${X11APPJAIL_WORKDIR}/appjail.d/run.subr"
